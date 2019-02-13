@@ -1,4 +1,12 @@
-import { Component, Input, HostBinding, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  Input,
+  HostBinding,
+  OnInit,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { DomSanitizer, SafeHtml, SafeStyle } from '@angular/platform-browser';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { BehaviorSubject } from 'rxjs';
@@ -9,29 +17,31 @@ import { BehaviorSubject } from 'rxjs';
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
-        style({opacity: 0}),
-        animate('300ms ease-in', style({opacity: 1}))
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 }))
       ])
     ])
   ],
   template: `
-    <ng-container [lazyImage]="src"
-                  [mode]="mode"
-                  (progress)="onProgress($event)"
-                  (loaded)="onLoaded($event)"
-                  (error)="onError($event)"
-                  [ngSwitch]="state | async">
+    <ng-container
+      [lazyImage]="src"
+      [mode]="mode"
+      (loaded)="onLoaded($event)"
+      (error)="onError($event)"
+      [ngSwitch]="state | async"
+    >
+      <div
+        *ngSwitchCase="'success'"
+        @fadeIn
+        class="g-image-item"
+        [style.backgroundImage]="imageUrl"
+      ></div>
 
-      <div *ngSwitchCase="'success'"
-           @fadeIn
-           class="g-image-item"
-           [style.backgroundImage]="imageUrl">
-      </div>
-
-      <div *ngSwitchCase="'failed'"
-           class="g-image-error-message">
-        <div *ngIf="errorTemplate; else defaultError"
-             [innerHTML]="errorTemplate"></div>
+      <div *ngSwitchCase="'failed'" class="g-image-error-message">
+        <div
+          *ngIf="errorTemplate; else defaultError"
+          [innerHTML]="errorTemplate"
+        ></div>
         <ng-template #defaultError>
           <ng-container *ngIf="isThumbnail; else isLarge">
             <h4>⚠</h4>
@@ -44,34 +54,33 @@ import { BehaviorSubject } from 'rxjs';
       </div>
 
       <ng-container *ngSwitchCase="'loading'">
-        <div *ngIf="loaderTemplate; else defaultLoader"
-             class="g-loading"
-             [innerHTML]="loaderTemplate">
-        </div>
+        <div
+          *ngIf="loaderTemplate; else defaultLoader"
+          class="g-loading"
+          [innerHTML]="loaderTemplate"
+        ></div>
         <ng-template #defaultLoader>
-
-          <div *ngIf="isThumbnail; else progressLoader" class="g-thumb-loading"></div>
+          <div
+            *ngIf="isThumbnail; else progressLoader"
+            class="g-thumb-loading"
+          ></div>
 
           <ng-template #progressLoader>
-            <radial-progress [value]="progress" [mode]="mode"></radial-progress>
+            <radial-progress [mode]="mode"></radial-progress>
           </ng-template>
-
-          </ng-template>
+        </ng-template>
       </ng-container>
     </ng-container>
   `
 })
-
 export class GalleryImageComponent implements OnInit {
-
   /** Stream that emits the state */
-  readonly state = new BehaviorSubject<'loading' | 'success' | 'failed'>('loading');
-
-  /** Progress value */
-  progress = 0;
+  readonly state = new BehaviorSubject<'loading' | 'success' | 'failed'>(
+    'loading'
+  );
 
   /** Image loader mode */
-  @Input() mode: 'determinate' | 'indeterminate' = 'determinate';
+  @Input() mode: 'determinate' | 'indeterminate' = 'indeterminate';
 
   /** Is thumbnail */
   @Input() isThumbnail: boolean;
@@ -104,20 +113,19 @@ export class GalleryImageComponent implements OnInit {
     return !!this.loadError;
   }
 
-  constructor(private _sanitizer: DomSanitizer) {
-  }
+  constructor(private _sanitizer: DomSanitizer) {}
 
   ngOnInit() {
     if (this.loadingIcon) {
-      this.loaderTemplate = this._sanitizer.bypassSecurityTrustHtml(this.loadingIcon);
+      this.loaderTemplate = this._sanitizer.bypassSecurityTrustHtml(
+        this.loadingIcon
+      );
     }
     if (this.loadingError) {
-      this.errorTemplate = this._sanitizer.bypassSecurityTrustHtml(this.loadingError);
+      this.errorTemplate = this._sanitizer.bypassSecurityTrustHtml(
+        this.loadingError
+      );
     }
-  }
-
-  onProgress({loaded, total}: { loaded: number, total: number }) {
-    this.progress = loaded * 100 / total;
   }
 
   onLoaded(blobUrl: string) {
@@ -130,5 +138,4 @@ export class GalleryImageComponent implements OnInit {
     this.state.next('failed');
     this.error.emit(err);
   }
-
 }

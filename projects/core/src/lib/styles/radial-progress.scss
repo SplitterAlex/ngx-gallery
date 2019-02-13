@@ -17,7 +17,9 @@ $iterations: 4;
 ::ng-deep {
   radial-progress {
     display: block;
-    position: relative;
+    position: absolute;
+    left: calc(50% - 30px);
+    top: calc(50% - 30px);
 
     svg {
       position: absolute;
@@ -49,9 +51,9 @@ $iterations: 4;
 
     &[mode='indeterminate'] {
       svg {
-        animation: stroke-rotate $stroke-rotate-duration $stroke-rotate-ease infinite;
+        animation: stroke-rotate $stroke-rotate-duration $stroke-rotate-ease
+          infinite;
       }
     }
   }
 }
-
