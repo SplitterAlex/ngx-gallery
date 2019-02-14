@@ -1,3 +1,4 @@
+import { LazyLoadThumbService } from './../services/lazy-load-thumb.service';
 import {
   Component,
   Input,
@@ -7,16 +8,20 @@ import {
   EventEmitter,
   ElementRef,
   ChangeDetectorRef,
-  OnInit
+  AfterViewInit,
+  OnInit,
+  OnDestroy
 } from '@angular/core';
 import { GalleryConfig } from '../models/config.model';
+import { take } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'gallery-thumb',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <gallery-image
-      [src]="src"
+      [src]="thumbSrc"
       mode="indeterminate"
       [isThumbnail]="true"
       [loadingIcon]="config.thumbLoadingIcon"
@@ -36,7 +41,11 @@ import { GalleryConfig } from '../models/config.model';
     </div>
   `
 })
-export class GalleryThumbComponent implements OnInit {
+export class GalleryThumbComponent implements OnInit, OnDestroy, AfterViewInit {
+  private _lazyLoadSubscribtion: Subscription;
+
+  public thumbSrc: string;
+
   @Input() config: GalleryConfig;
 
   /** Item's index in the gallery */
@@ -51,15 +60,7 @@ export class GalleryThumbComponent implements OnInit {
   /** Item's data, this object contains the data required to display the content (e.g. src path) */
   @Input() data: any;
 
-  @Input()
-  set src(src: string) {
-    this._thumbSrc = src;
-    // this._cdr.detectChanges();
-  }
-  get src(): string {
-    return this._thumbSrc;
-  }
-  private _thumbSrc: string;
+  @Input() thumbsContainerEl: Element;
 
   @Output() error = new EventEmitter<Error>();
 
@@ -67,20 +68,33 @@ export class GalleryThumbComponent implements OnInit {
     return this.index === this.currIndex;
   }
 
-  constructor(private _el: ElementRef, private _cdr: ChangeDetectorRef) {}
+  constructor(
+    private _el: ElementRef,
+    private _cdr: ChangeDetectorRef,
+    private _lazyLoadThumbService: LazyLoadThumbService
+  ) {}
 
   ngOnInit() {
-    if (!('IntersectionObserver' in window)) {
-      this.src = this.data.thumb;
+    if (!this._lazyLoadThumbService.isSupported) {
+      this.thumbSrc = this.data.thumb;
     }
   }
 
-  loadThumb() {
-    this._thumbSrc = this.data.thumb;
-    this._cdr.detectChanges();
+  ngAfterViewInit() {
+    if (this._lazyLoadThumbService.isSupported) {
+      this._lazyLoadSubscribtion = this._lazyLoadThumbService
+        .observe(this._el.nativeElement, this.thumbsContainerEl)
+        .pipe(take(1))
+        .subscribe(() => {
+          this.thumbSrc = this.data.thumb;
+          this._cdr.detectChanges();
+        });
+    }
   }
 
-  get nativeElement() {
-    return this._el.nativeElement;
+  ngOnDestroy() {
+    if (this._lazyLoadSubscribtion) {
+      this._lazyLoadSubscribtion.unsubscribe();
+    }
   }
 }

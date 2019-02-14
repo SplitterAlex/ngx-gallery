@@ -11,11 +11,7 @@ import {
   ElementRef,
   EventEmitter,
   ChangeDetectionStrategy,
-  ViewChildren,
-  QueryList,
-  AfterViewInit,
-  ViewChild,
-  ChangeDetectorRef
+  AfterViewInit
 } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -23,6 +19,7 @@ import { GalleryConfig } from '../models/config.model';
 import { GalleryState, GalleryError } from '../models/gallery.model';
 import { ThumbnailsPosition, ThumbnailsMode } from '../models/constants';
 import { SliderState, WorkerState } from '../models/slider.model';
+import { LazyLoadThumbService } from '../services/lazy-load-thumb.service';
 
 declare const Hammer: any;
 
@@ -33,7 +30,7 @@ declare const Hammer: any;
     <div
       *ngIf="(sliderState$ | async); let sliderState"
       class="g-thumbs-container"
-      #slider
+      #thumbsContainerEl
     >
       <div
         class="g-slider"
@@ -42,7 +39,7 @@ declare const Hammer: any;
       >
         <gallery-thumb
           *ngFor="let item of state.items; let i = index"
-          id="{{ i }}"
+          [thumbsContainerEl]="thumbsContainerEl"
           [type]="item.type"
           [config]="config"
           [data]="item.data"
@@ -54,10 +51,10 @@ declare const Hammer: any;
         ></gallery-thumb>
       </div>
     </div>
-  `
+  `,
+  providers: [LazyLoadThumbService]
 })
-export class GalleryThumbsComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class GalleryThumbsComponent implements OnInit, OnChanges, OnDestroy {
   /** Sliding worker */
   private readonly _slidingWorker$ = new BehaviorSubject<WorkerState>({
     value: 0,
@@ -69,8 +66,6 @@ export class GalleryThumbsComponent
 
   /** Current slider position in free sliding mode */
   private _freeModeCurrentOffset = 0;
-
-  private _intersectionObserver: IntersectionObserver;
 
   /** Stream that emits sliding state */
   sliderState$: Observable<SliderState>;
@@ -90,9 +85,6 @@ export class GalleryThumbsComponent
   /** Stream that emits when an error occurs */
   @Output() error = new EventEmitter<GalleryError>();
 
-  @ViewChildren(GalleryThumbComponent) thumbs: QueryList<GalleryThumbComponent>;
-  @ViewChild('slider') sliderEl: ElementRef;
-
   /** Host height */
   @HostBinding('style.height') height: string;
 
@@ -102,7 +94,7 @@ export class GalleryThumbsComponent
   constructor(
     private _el: ElementRef,
     private _zone: NgZone,
-    private _cdr: ChangeDetectorRef
+    private _lazyLoadThumbService: LazyLoadThumbService
   ) {
     // Activate sliding worker
     this.sliderState$ = this._slidingWorker$.pipe(
@@ -155,35 +147,11 @@ export class GalleryThumbsComponent
     }
   }
 
-  ngAfterViewInit() {
-    if ('IntersectionObserver' in window) {
-      this._intersectionObserver = new IntersectionObserver(
-        this._handleIntersect.bind(this),
-        {
-          root: this.sliderEl.nativeElement,
-          rootMargin: '50px',
-          threshold: 1
-        }
-      );
-      this.thumbs.forEach(component => {
-        this._intersectionObserver.observe(component.nativeElement);
-      });
-      this.thumbs.changes.subscribe(_ => {
-        this._intersectionObserver.disconnect();
-        this.thumbs.forEach(component => {
-          if (!component.src) {
-            this._intersectionObserver.observe(component.nativeElement);
-          }
-        });
-      });
-    }
-  }
-
   ngOnDestroy() {
     if (this._hammer) {
       this._hammer.destroy();
     }
-    this._intersectionObserver.disconnect();
+    this._lazyLoadThumbService.disconnect();
   }
 
   /**
@@ -422,16 +390,5 @@ export class GalleryThumbsComponent
   private updateSlider(state: WorkerState) {
     const newState: WorkerState = { ...this._slidingWorker$.value, ...state };
     this._slidingWorker$.next(newState);
-  }
-
-  private _handleIntersect(entries, observer) {
-    entries.forEach((entry: IntersectionObserverEntry) => {
-      if (entry.isIntersecting) {
-        const id = entry.target.id;
-        const thumb = this.thumbs.toArray()[+id];
-        thumb.loadThumb();
-        observer.unobserve(entry.target);
-      }
-    });
   }
 }
