@@ -13,15 +13,15 @@ export const docRoutes: Routes = [
       },
       {
         path: 'core',
-        loadChildren: './doc-core/doc-core.module#DocCoreModule',
+        loadChildren: () => import('./doc-core/doc-core.module').then(m => m.DocCoreModule),
       },
       {
         path: 'lightbox',
-        loadChildren: './doc-lightbox/doc-lightbox.module#DocLightboxModule',
+        loadChildren: () => import('./doc-lightbox/doc-lightbox.module').then(m => m.DocLightboxModule),
       },
       {
         path: 'gallerize',
-        loadChildren: './doc-gallerize/doc-gallerize.module#DocGallerizeModule',
+        loadChildren: () => import('./doc-gallerize/doc-gallerize.module').then(m => m.DocGallerizeModule),
       },
     ]
   }

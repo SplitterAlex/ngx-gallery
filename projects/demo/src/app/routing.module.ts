@@ -2,14 +2,14 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 const appRoutes: Routes = [
-  {path: '', loadChildren: './pages/home/home.module#HomeModule', pathMatch: 'full'},
-  {path: 'getting-started', loadChildren: './pages/documentation/documentation.module#DocumentationModule'},
-  {path: 'gallery', loadChildren: './pages/gallery-example/gallery-example.module#GalleryExampleModule'},
-  {path: 'lightbox', loadChildren: './pages/lightbox-example/lightbox-example.module#LightboxExampleModule'},
-  {path: 'gallerize', loadChildren: './pages/gallerize-example/gallerize-example.module#GallerizeExampleModule'},
-  {path: 'advanced', loadChildren: './pages/advanced-example/advanced-example.module#AdvancedExampleModule'},
-  {path: 'lab', loadChildren: './pages/lab/lab.module#LabModule'},
-  {path: '**', loadChildren: './pages/not-found/not-found.module#NotFoundPageModule'}
+  {path: '', loadChildren: () => import('./pages/home/home.module').then(m => m.HomeModule), pathMatch: 'full'},
+  {path: 'getting-started', loadChildren: () => import('./pages/documentation/documentation.module').then(m => m.DocumentationModule)},
+  {path: 'gallery', loadChildren: () => import('./pages/gallery-example/gallery-example.module').then(m => m.GalleryExampleModule)},
+  {path: 'lightbox', loadChildren: () => import('./pages/lightbox-example/lightbox-example.module').then(m => m.LightboxExampleModule)},
+  {path: 'gallerize', loadChildren: () => import('./pages/gallerize-example/gallerize-example.module').then(m => m.GallerizeExampleModule)},
+  {path: 'advanced', loadChildren: () => import('./pages/advanced-example/advanced-example.module').then(m => m.AdvancedExampleModule)},
+  {path: 'lab', loadChildren: () => import('./pages/lab/lab.module').then(m => m.LabModule)},
+  {path: '**', loadChildren: () => import('./pages/not-found/not-found.module').then(m => m.NotFoundPageModule)}
 ];
 
 @NgModule({
