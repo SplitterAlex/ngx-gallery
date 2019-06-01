@@ -62,7 +62,7 @@
     "core-js": "^2.5.4",
     "hammerjs": "^2.0.8",
     "highlight.js": "^9.13.1",
-    "ng-cockpit": "file:../ng-libs/dist/ng-cockpit/ng-cockpit-0.0.3.tgz",
+    "ng-cockpit": "file:../ng-libs/dist/ng-cockpit/ng-cockpit-8.0.0.tgz",
     "ngx-highlightjs": "^3.0.1",
     "ngx-scrollbar": "^4.1.1",
     "rxjs": "^6.3.3",
