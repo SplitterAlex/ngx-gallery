@@ -1,0 +1,9 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 5000px;
+}
+
+.gallery {
+  margin-top: 10rem;
+}

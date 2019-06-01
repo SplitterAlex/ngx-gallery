@@ -10,26 +10,13 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es5",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2017",
-      "dom"
-    ],
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2017", "dom"],
     "paths": {
-      "core": [
-        "dist/core"
-      ],
-      "lightbox": [
-        "dist/lightbox"
-      ],
-      "gallerize": [
-        "dist/gallerize"
-      ],
-      "magnifier": [
-        "dist/magnifier"
-      ]
+      "@ngx-gallery/core": ["dist/core"],
+      "@ngx-gallery/lightbox": ["dist/lightbox"],
+      "gallerize": ["dist/gallerize"],
+      "magnifier": ["dist/magnifier"]
     }
   }
 }

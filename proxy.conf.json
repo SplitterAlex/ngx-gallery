@@ -1,0 +1,14 @@
+{
+  "/api": {
+    "target": "https://docker.local.com",
+    "secure": false
+  },
+  "/storage": {
+    "target": "https://docker.local.com",
+    "secure": false
+  },
+  "/instagram": {
+    "target": "https://docker.local.com",
+    "secure": false
+  }
+}
