@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatIconRegistry, MatSidenav } from '@angular/material';
+import { MatIconRegistry } from '@angular/material/icon';
+import { MatSidenav } from '@angular/material/sidenav';
 import { tap, filter } from 'rxjs/operators';
 
 import { fadeAnimation } from './app-routing.animations';

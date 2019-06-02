@@ -24,7 +24,7 @@ import { take } from 'rxjs/operators';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  @ViewChild(GalleryComponent) galleryComponent: GalleryComponent;
+  @ViewChild(GalleryComponent, {static: false}) galleryComponent: GalleryComponent;
 
   public data;
   constructor(
